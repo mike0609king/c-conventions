@@ -10,19 +10,24 @@ and has other additional structures in comparison to C
 (reference standards proposed by Sutter or Holub)
 
 ## Naming Conventions
+- Macros are all upper case letters and underscores.
 - Use i, j, k, l, n and m for local indizes in a while- or for-loop. 
 In that particular order.
 - Try to avoid using n and m as local indizes if possible, because
 your code is screwed if you really have to resort to using n and m.
 If you want to use local upper bounds for for- or while-loops use 
 n and m.
-- Prefix variables with "flag" in order to indicate that is is a 
-flag
+- Variable prefixes:
+    - `g_`: global variables.
+    - `flag`: flags.
 - Functions start with a verb
-- Structures are nouns
+- Structures are nouns and end with `_t`. The reason being that you can
+then name the variable similar to the structures without confusion.
+- Use typedef to declare structs for easier usage.
 - Be consistent with shorthand notations and try to reduce them if 
 you don't use them often. Specify them in a table.
 - Modules should be snake case (like variable names).
+- Declare functions that you use outside of a module in the header-file.
 - Header end with `.h` and source wiles end with `.c`
 - Header of a source file should only differ in the suffix `.h` from
 the source. Therefore each source can only have at most one header file.
@@ -136,16 +141,36 @@ be separated with two blank lines.
 
 
 ## Comments
-- Comment your functions in the header file
-- If you assume something of parameters in a functions you also have to 
-name it.
+- Comment your functions in the header file. Template:
+```C
+/**
+ * This is the description of what the function is supposed to do.
+ * 
+ * @param param1 This is the description of the first parameter.
+ * @param param2 This is the description of the second parameter.
+ * @return This is a description of the return values.
+*/
+void
+do_something(int param1, int param2, int param3) {
+    // something gets done in here
+}
+```
 - If you have functions that you haven't declared in the header 
 then you should comment them wherever you declare those functions
+- If you assume something of parameters in a functions you also have to 
+name it.
+- Generally assumtions that are not checked should be commented.
 - Comments can also reference documentation. Try not to give specific paths,
 because those might change. It is okay to reference the file by name
 - Keywords of comments "TODO", "WARNING" (explains risks) and "NOTE" 
 (explains why happens). If no comments are give then it's only described
 what the code does
+- Don't contain preprocessor tokens "/\*", "//" or "\\"
+- Pushing commented code is illegal. Preprocessor guards should be used.
+- Comment development decisions that you have made. For instance if you
+implemented a somewhat ugly workaround for a problem.
+- Compare floating point variables with a tolerance value instead of directly
+with equal sign.
 
 ## Pointers and memory allocation
 - If your array has a resonable fixed upper bound for its size. Then
@@ -184,9 +209,13 @@ be accessed outside of the module
 - Always use `const` for:
     - function calls where the value shouldn't be changed 
     - variables that don't change
-- TODO: Find out more -> Always use `volatile`: variable is used by multiple threads 
+- Always use `volatile` when: 
+    - variable is used by multiple threads:
+        - memory mapped I/O peripheral register set
+        - global variable used by interrupts
 - Use `DEBUG` to define functions that should only be used when in 
-debug mode:
+debug mode. You should also also use this to comment out code blocks.
+Example:
 ```
 #ifdef DEBUG
 void deb_function(...)
@@ -197,9 +226,37 @@ void deb_function(...)
 void deb_function(...) {}
 #endif
 ```
-You should also also use this to comment out code blocks
 - Avoid using abolute paths as much as reasonably possible!
+- If integer size matters use fixed-width integer types. This is also the
+reason why you should never use `short` or `long`.
+- If individual bits are important e.g. you may use bit-operations on an
+integer, then you have to make the integer unsigned.
+- NEVER mix signed datatypes with unsigned datatypes. This can cause errors.
+- If a verialbe is a boolean, declare or cast it to a boolean.
+- Functions are not longer than 100 lines.
+- Function exit points should be minimal. Try to keep it at one if possible,
+where the exit point is at the bottom of the function.
+- Return types in function definitions should be put on a separate line for
+readability.
+- Use parameterized macros sparingly.
+- Don't nest control structures more than three levels. If this is the case
+then auxilery functions should be used to make the code more readable.
+- Don't declare multiple variables in one line. This makes it easier to change
+in the future. The following shouldn't be
+allowed:
+```
+int a, b, c;
+```
+- When declaring a pointer the asterisk should be close to the variable name:
+`int *number;`.
+- Avoid embedded assignments if it doesn't affect readability too much,
+where `++` and `--` count as assignments.
+
 
 ## Guidelines and principles for reference
 - MISRA C: If malfunction can have very serious consequences.
-- BARR C guidelines
+- BARR C guidelines: I used a lot of concepts that are described in here.
+
+
+## TODO
+- read mcinglis/c-style
