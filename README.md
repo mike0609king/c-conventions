@@ -125,7 +125,7 @@ The names should be different from those that already exist.
 - If you use a main function then you have to include `main` in the
 name of the file. You shall not include `main` in the file if the
 file doesn't contain any main-function.
-- Each source corresponding header should have one functionality:
+- Each header defines one functionality:
     - manipulate one data structure that is declared in the header
     - run one algorithm (or a few algorithms that are extremly 
     similar [this should be done after careful consideration])
@@ -164,9 +164,9 @@ file doesn't contain any main-function.
     - include statements
     - typedefs, constants and macros
     - declaration of data types
-    - private function prototypes and comment block for their usage
+    - function prototypes (which are not exported) and comment block for their usage
     - functions that are declared in the header
-    - functions that are private
+    - functions that are not used outside of the file
 - Source files should never include other source files
 
 
@@ -181,7 +181,8 @@ file doesn't contain any main-function.
  * @return This is a description of the return values.
 */
 void
-do_something(int param1, int param2, int param3) {
+do_something(int param1, int param2, int param3)
+{
     // something gets done in here
 }
 ```
@@ -228,8 +229,9 @@ be accessed outside of the module.
         - memory mapped I/O peripheral register set
         - global variable used by interrupts
 - Use keywords like `goto`, `continue` and `break` only if truly necessary
-and always comment them to make clear why you use them.
-- Don't use `register` and `auto`.
+and always comment them to make clear why you use them. Continue and breaks
+are okay if they are at the beginning to check certain conditions.
+- Don't use `register`.
 
 ## Bit operations
 - If integer size matters use fixed-width integer types. This is also the
@@ -248,15 +250,24 @@ that you use assembly in.
 `(void)printf(...)`
 - Use `DEBUG` to define functions that should only be used when in 
 debug mode. Those functions should be prefixed with `deb_`.
-You should also also use this to comment out code blocks. Example:
+Example:
 ```
 #ifdef DEBUG
-void deb_function(...)
+void
+deb_function(...)
 {
     // meaningful code
 }
 #else
-void deb_function(...) {}
+void
+deb_function(...) {}
+#endif
+```
+- You should also also use preprocessor directives to comment out code blocks.
+Like this:
+```
+#ifdef NOT_DEFINED
+    // stuff that is commented out
 #endif
 ```
 - Avoid using abolute paths as much as reasonably possible!
@@ -268,12 +279,13 @@ where the exit point is at the bottom of the function.
 `int *number;`.
 - Avoid embedded assignments if it doesn't affect readability too much,
 where `++` and `--` count as assignments.
+- Functions that have no parameters have to be declared with the parameter
+`void`: `void func(void);`
 
 
 ## Guidelines and principles for reference
 - MISRA C: If malfunction can have very serious consequences.
 - BARR C guidelines: I used a lot of concepts that are described in here.
-
 
 ## TODO
 - read mcinglis/c-style
